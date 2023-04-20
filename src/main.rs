@@ -79,6 +79,20 @@ async fn index() -> impl Responder {
         .body(include_str!("../templates/index.html"))
 }
 
+#[get("/tasks_completed")]
+async fn get_tasks_completed(state: web::Data<Mutex<AppState>>) -> impl Responder {
+    let state = state.lock().unwrap();
+    let jon_tasks_completed = state.jon.tasks_completed;
+    let robin_tasks_completed = state.robin.tasks_completed;
+    HttpResponse::Ok()
+        .content_type("application/json")
+        .json(json!({
+            "jon": jon_tasks_completed,
+            "robin": robin_tasks_completed,
+        }))
+}
+
+
 #[post("/increment/{person}")]
 async fn increment(state: web::Data<Mutex<AppState>>, person: web::Path<String>) -> impl Responder {
     let mut state = state.lock().unwrap();
@@ -142,6 +156,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(app_state.clone())
             .service(index)
+            .service(get_tasks_completed)
             .service(increment)
             .service(decrement)
     })

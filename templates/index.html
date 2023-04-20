@@ -42,6 +42,19 @@
             });
         }
 
+        window.addEventListener('load', function() {
+            fetch('/tasks_completed')
+                .then(response => response.json())
+                .then(data => {
+                    const jonTasks = document.getElementById('jon-tasks');
+                    const robinTasks = document.getElementById('robin-tasks');
+
+                jonTasks.textContent = data.jon;
+                robinTasks.textContent = data.robin;
+            });
+        });
+
+
         createTaskListeners("jon");
         createTaskListeners("robin");
 	</script>
