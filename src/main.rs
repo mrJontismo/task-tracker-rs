@@ -1,6 +1,34 @@
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use serde_json::json;
+use std::fs;
 use std::sync::Mutex;
+
+fn read_tasks_completed_from_file(person_name: &str) -> u8 {
+    let filename = format!("{}.txt", person_name);
+    match fs::read_to_string(&filename) {
+        Ok(s) => {
+            if let Ok(num) = s.trim().parse::<u8>() {
+                num
+            } else {
+                eprintln!("Error: invalid number in file {}", filename);
+                0
+            }
+        }
+        Err(e) => {
+            eprintln!("Error reading file {}: {}", filename, e);
+            0
+        }
+    }
+}
+
+fn initialize_person_from_file(person_name: &str) -> Person {
+    let tasks_completed = read_tasks_completed_from_file(person_name);
+    Person {
+        name: person_name.to_string(),
+        tasks_completed,
+        all_tasks_completed: tasks_completed == 20,
+    }
+}
 
 struct Person {
     name: String,
@@ -9,19 +37,12 @@ struct Person {
 }
 
 impl Person {
-    fn new(name: String) -> Self {
-        Person {
-            name,
-            tasks_completed: 0,
-            all_tasks_completed: false,
-        }
-    }
-
     fn increment_tasks(&mut self) {
         self.tasks_completed += 1;
         if self.tasks_completed == 20 {
             self.all_tasks_completed = true;
         }
+        self.write_tasks_completed_to_file();
     }
 
     fn decrement_tasks(&mut self) {
@@ -29,13 +50,21 @@ impl Person {
             self.tasks_completed -= 1;
             self.all_tasks_completed = false;
         }
+        self.write_tasks_completed_to_file();
     }
 
     fn reset_tasks(&mut self) {
         self.tasks_completed = 0;
         self.all_tasks_completed = false;
+        self.write_tasks_completed_to_file();
     }
-    
+
+    fn write_tasks_completed_to_file(&self) {
+        let filename = format!("{}.txt", self.name);
+        if let Err(e) = fs::write(&filename, format!("{}", self.tasks_completed)) {
+            eprintln!("Error writing file {}: {}", filename, e);
+        }
+    }
 }
 
 struct AppState {
@@ -103,9 +132,9 @@ async fn main() -> std::io::Result<()> {
     let address = "127.0.0.1:8080";
 
     let app_state = web::Data::new(Mutex::new(AppState {
-        jon: Person::new("Jon".to_string()),
-        robin: Person::new("Robin".to_string()),
-    }));
+        jon: initialize_person_from_file("Jon"),
+        robin: initialize_person_from_file("Robin"),
+    }));    
 
     println!("Server running on {}", address);
 
