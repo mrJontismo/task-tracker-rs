@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastit</title>
+</head>
+<body>
+	<h1>Task Tracker</h1>
+
+	<h2>Jon</h2>
+	<p>Tasks Completed: <span id="jon-tasks"></span></p>
+	<button id="jon-increment">Increment</button>
+	<button id="jon-decrement">Decrement</button>
+
+	<h2>Robin</h2>
+	<p>Tasks Completed: <span id="robin-tasks"></span></p>
+	<button id="robin-increment">Increment</button>
+	<button id="robin-decrement">Decrement</button>
+
+	<script>
+        function createTaskListeners(person) {
+            const incrementButton = document.getElementById(person + "-increment");
+            const decrementButton = document.getElementById(person + "-decrement");
+            const tasksCompleted = document.getElementById(person + "-tasks");
+
+            incrementButton.addEventListener("click", function() {
+                fetch("/increment/" + person, { method: "POST" })
+                    .then(response => response.json())
+                    .then(data => {
+                        tasksCompleted.textContent = data.tasks_completed;
+                    });
+            });
+
+            decrementButton.addEventListener("click", function() {
+                fetch("/decrement/" + person, { method: "POST" })
+                    .then(response => response.json())
+                    .then(data => {
+                        tasksCompleted.textContent = data.tasks_completed;
+                    });
+            });
+        }
+
+        createTaskListeners("jon");
+        createTaskListeners("robin");
+	</script>
+</body>
+</html>

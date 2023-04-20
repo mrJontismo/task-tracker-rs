@@ -1,4 +1,5 @@
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use serde_json::json;
 use std::sync::Mutex;
 
 struct Person {
@@ -43,15 +44,10 @@ struct AppState {
 }
 
 #[get("/")]
-async fn index(state: web::Data<Mutex<AppState>>) -> impl Responder {
-    let state = state.lock().unwrap();
-    let jon = &state.jon;
-    let robin = &state.robin;
-
-    HttpResponse::Ok().body(format!(
-        "{} has completed {} tasks. {} has completed {} tasks.",
-        jon.name, jon.tasks_completed, robin.name, robin.tasks_completed
-    ))
+async fn index() -> impl Responder {
+    HttpResponse::Ok()
+        .content_type("text/html")
+        .body(include_str!("../templates/index.html"))
 }
 
 #[post("/increment/{person}")]
@@ -67,7 +63,16 @@ async fn increment(state: web::Data<Mutex<AppState>>, person: web::Path<String>)
     if person_to_update.all_tasks_completed {
         person_to_update.reset_tasks();
     }
-    HttpResponse::Ok().finish()
+
+    println!("Incremented for user {}", person_to_update.name);
+
+    HttpResponse::Ok()
+    .content_type("application/json")
+    .json(json!({
+        "name": &person_to_update.name,
+        "tasks_completed": person_to_update.tasks_completed,
+    }))
+
 }
 
 #[post("/decrement/{person}")]
@@ -79,17 +84,30 @@ async fn decrement(state: web::Data<Mutex<AppState>>, person: web::Path<String>)
         _ => return HttpResponse::BadRequest().finish(),
     };
 
-    person_to_update.decrement_tasks();
-    HttpResponse::Ok().finish()
-}
+    println!("Decremented for user {}", person_to_update.name);
 
+    person_to_update.decrement_tasks();
+
+    HttpResponse::Ok()
+    .content_type("application/json")
+    .json(json!({
+        "name": &person_to_update.name,
+        "tasks_completed": person_to_update.tasks_completed,
+    }))
+
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+
+    let address = "127.0.0.1:8080";
+
     let app_state = web::Data::new(Mutex::new(AppState {
         jon: Person::new("Jon".to_string()),
         robin: Person::new("Robin".to_string()),
     }));
+
+    println!("Server running on {}", address);
 
     HttpServer::new(move || {
         App::new()
@@ -98,7 +116,7 @@ async fn main() -> std::io::Result<()> {
             .service(increment)
             .service(decrement)
     })
-    .bind("127.0.0.1:8080")?
+    .bind(address)?
     .run()
     .await
 }
