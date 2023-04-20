@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+    - name: Expose port 8080
+      run: sudo ufw allow 8080/tcp
     - name: build and push image
       run: |
         echo '${{ secrets.DOCKERPW }}' | docker login -u "jontismo" --password-stdin
