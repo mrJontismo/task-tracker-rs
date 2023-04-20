@@ -14,5 +14,5 @@ jobs:
         docker logout
         echo '${{ secrets.DOCKERPW }}' | docker login -u "jontismo" --password-stdin
         docker image build -t jontismo/task-tracker-rs .
-        docker tag jontiso/task-tracker-rs jontismo/task-tracker-rs
+        docker tag jontismo/task-tracker-rs jontismo/task-tracker-rs
         docker push jontismo/task-tracker-rs
