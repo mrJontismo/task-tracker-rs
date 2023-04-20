@@ -143,7 +143,7 @@ async fn decrement(state: web::Data<Mutex<AppState>>, person: web::Path<String>)
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
-    let address = "127.0.0.1:8080";
+    let address = "0.0.0.0:8080";
 
     let app_state = web::Data::new(Mutex::new(AppState {
         jon: initialize_person_from_file("Jon"),
