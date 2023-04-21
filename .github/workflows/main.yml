@@ -16,3 +16,4 @@ jobs:
         docker image build -t '${{ secrets.DOCKERUSERNAME }}'/task-tracker-rs .
         docker tag '${{ secrets.DOCKERUSERNAME }}'/task-tracker-rs '${{ secrets.DOCKERUSERNAME }}'/task-tracker-rs
         docker push '${{ secrets.DOCKERUSERNAME }}'/task-tracker-rs
+        docker image rm '${{ secrets.DOCKERUSERNAME }}'/task-tracker-rs
