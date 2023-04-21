@@ -8,12 +8,35 @@ jobs:
   build:
     runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v1
     - name: Build & Push
+      uses: actions/checkout@v1
       run: |
         docker logout
-        echo '${{ secrets.DOCKERPASSWORD }}' | docker login -u '${{ secrets.DOCKERUSERNAME }}' --password-stdin
-        docker image build -t '${{ secrets.DOCKERUSERNAME }}'/task-tracker-rs .
-        docker tag '${{ secrets.DOCKERUSERNAME }}'/task-tracker-rs '${{ secrets.DOCKERUSERNAME }}'/task-tracker-rs
-        docker push '${{ secrets.DOCKERUSERNAME }}'/task-tracker-rs
-        docker image rm '${{ secrets.DOCKERUSERNAME }}'/task-tracker-rs
+        echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u '${{ secrets.DOCKER_USERNAME }}' --password-stdin
+        docker image build -t '${{ secrets.DOCKER_USERNAME }}'/task-tracker-rs .
+        docker tag '${{ secrets.DOCKER_USERNAME }}'/task-tracker-rs '${{ secrets.DOCKER_USERNAME }}'/task-tracker-rs
+        docker push '${{ secrets.DOCKER_USERNAME }}'/task-tracker-rs
+        docker image rm '${{ secrets.DOCKER_USERNAME }}'/task-tracker-rs
+  
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+    - name: SSH
+      run: |
+        mkdir -p ~/.ssh/
+        echo '${{ secrets.SSH_KEY }}' > ~/.ssh/deploy.key
+        chmod 600 ~/.ssh/deploy.key
+        cat >>~/.ssh/config <<END
+        Host deploy
+          HostName '${{ secrets.SSH_HOST }}'
+          User '${{ secrets.SSH_USERNAME }}'
+          IdentityFile ~/.ssh/deploy.key
+          StrictHostKeyChecking no
+        END
+
+    - name: Stop & Remove old container and image
+      run: ssh deploy 'CONTAINERID=$(docker ps -q --filter "publish=8080") && docker stop "$CONTAINERID" && docker rm "$CONTAINERID" && docker image rm jontismo/task-tracker-rs'
+
+    - name: Pull & Run new container
+      run: ssh deploy "docker pull '${{ secrets.DOCKER_USERNAME }}'/task-tracker-rs && docker run -d -p 8080:8080 --restart always jontismo/task-tracker-rs"
