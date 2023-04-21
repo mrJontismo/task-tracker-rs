@@ -13,6 +13,6 @@ jobs:
       run: |
         docker logout
         echo '${{ secrets.DOCKERPASSWORD }}' | docker login -u '${{ secrets.DOCKERUSERNAME }}' --password-stdin
-        docker image build -t jontismo/task-tracker-rs .
-        docker tag jontismo/task-tracker-rs jontismo/task-tracker-rs
-        docker push jontismo/task-tracker-rs
+        docker image build -t '${{ secrets.DOCKERUSERNAME }}'/task-tracker-rs .
+        docker tag '${{ secrets.DOCKERUSERNAME }}'/task-tracker-rs '${{ secrets.DOCKERUSERNAME }}'/task-tracker-rs
+        docker push '${{ secrets.DOCKERUSERNAME }}'/task-tracker-rs
