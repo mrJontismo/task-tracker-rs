@@ -1,8 +1,7 @@
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
-use serde_json::json;
-use std::sync::Mutex;
-use std::fs;
 use tracing::{info, metadata::LevelFilter};
+use std::{sync::Mutex, fs};
+use serde_json::json;
 
 fn read_tasks_completed_from_file(person_name: &str) -> u8 {
     let filename = format!("/app/data/{}.txt", person_name);
