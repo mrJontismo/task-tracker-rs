@@ -7,8 +7,8 @@ on:
 jobs:
   build:
     runs-on: self-hosted
-    uses: actions/checkout@v1
     steps:
+    - uses: actions/checkout@v1
     - name: Build & Push
       run: |
         docker logout
