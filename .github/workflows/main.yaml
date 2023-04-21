@@ -22,19 +22,6 @@ jobs:
     needs: build
     runs-on: self-hosted
     steps:
-      - name: SSH
-        run: |
-          mkdir -p ~/.ssh/
-          echo '${{ secrets.SSH_KEY }}' > ~/.ssh/deploy.key
-          chmod 600 ~/.ssh/deploy.key
-          cat >>~/.ssh/config <<END
-          Host deploy
-            HostName '${{ secrets.SSH_HOST }}'
-            User '${{ secrets.SSH_USERNAME }}'
-            IdentityFile ~/.ssh/deploy.key
-            StrictHostKeyChecking no
-          END
-
       - name: Stop & Remove old container and image
         run: |
           ssh deploy 'CONTAINERID=$(docker ps -q --filter "publish=8080") && docker stop "$CONTAINERID" && docker rm "$CONTAINERID" && docker image rm jontismo/task-tracker-rs'
