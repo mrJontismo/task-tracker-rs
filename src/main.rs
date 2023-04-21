@@ -5,7 +5,7 @@ use std::fs;
 use tracing::{info, metadata::LevelFilter};
 
 fn read_tasks_completed_from_file(person_name: &str) -> u8 {
-    let filename = format!("{}.txt", person_name);
+    let filename = format!("/app/data/{}.txt", person_name);
     match fs::read_to_string(&filename) {
         Ok(s) => {
             if let Ok(num) = s.trim().parse::<u8>() {

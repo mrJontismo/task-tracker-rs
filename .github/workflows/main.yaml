@@ -28,4 +28,4 @@ jobs:
 
       - name: Pull & Run new container
         run: |
-          ssh deploy 'docker pull "${{ secrets.DOCKER_USERNAME }}"/task-tracker-rs && docker run -d -p 8080:8080 --restart always jontismo/task-tracker-rs'
+          ssh deploy 'docker pull "${{ secrets.DOCKER_USERNAME }}"/task-tracker-rs &&  docker run -d -p 8080:8080 -v /home/jon/task-data:/app/data --restart always jontismo/task-tracker-rs'
