@@ -1,7 +1,8 @@
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use serde_json::json;
-use std::fs;
 use std::sync::Mutex;
+use std::fs;
+use tracing::{info, metadata::LevelFilter};
 
 fn read_tasks_completed_from_file(person_name: &str) -> u8 {
     let filename = format!("{}.txt", person_name);
@@ -107,7 +108,7 @@ async fn increment(state: web::Data<Mutex<AppState>>, person: web::Path<String>)
         person_to_update.reset_tasks();
     }
 
-    println!("Incremented for user {}", person_to_update.name);
+    info!("Incremented for user {}. New value: {}", person_to_update.name, person_to_update.tasks_completed);
 
     HttpResponse::Ok()
     .content_type("application/json")
@@ -127,9 +128,9 @@ async fn decrement(state: web::Data<Mutex<AppState>>, person: web::Path<String>)
         _ => return HttpResponse::BadRequest().finish(),
     };
 
-    println!("Decremented for user {}", person_to_update.name);
-
     person_to_update.decrement_tasks();
+
+    info!("Decremented for user {}. New value: {}", person_to_update.name, person_to_update.tasks_completed);
 
     HttpResponse::Ok()
     .content_type("application/json")
@@ -143,14 +144,18 @@ async fn decrement(state: web::Data<Mutex<AppState>>, person: web::Path<String>)
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
-    let address = "0.0.0.0:8080";
-
     let app_state = web::Data::new(Mutex::new(AppState {
         jon: initialize_person_from_file("Jon"),
         robin: initialize_person_from_file("Robin"),
-    }));    
+    }));
 
-    println!("Server running on {}", address);
+    tracing_subscriber::fmt()
+        .with_max_level(LevelFilter::DEBUG)
+        .init();
+
+    let address = "0.0.0.0:8080";
+
+    info!("Server running on {}", address);
 
     HttpServer::new(move || {
         App::new()
