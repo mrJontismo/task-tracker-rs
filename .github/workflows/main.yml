@@ -6,13 +6,13 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - uses: actions/checkout@v1
-    - name: build and push image
+    - name: Build & Push
       run: |
         docker logout
-        echo '${{ secrets.DOCKERPW }}' | docker login -u "jontismo" --password-stdin
+        echo '${{ secrets.DOCKERPASSWORD }}' | docker login -u '${{ secrets.DOCKERUSERNAME }}' --password-stdin
         docker image build -t jontismo/task-tracker-rs .
         docker tag jontismo/task-tracker-rs jontismo/task-tracker-rs
         docker push jontismo/task-tracker-rs
