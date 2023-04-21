@@ -61,7 +61,7 @@ impl Person {
     }
 
     fn write_tasks_completed_to_file(&self) {
-        let filename = format!("{}.txt", self.name);
+        let filename = format!("/app/data/{}.txt", self.name);
         if let Err(e) = fs::write(&filename, format!("{}", self.tasks_completed)) {
             eprintln!("Error writing file {}: {}", filename, e);
         }
