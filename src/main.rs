@@ -115,7 +115,6 @@ async fn increment(state: web::Data<Mutex<AppState>>, person: web::Path<String>)
         "name": &person_to_update.name,
         "tasks_completed": person_to_update.tasks_completed,
     }))
-
 }
 
 #[post("/decrement/{person}")]
@@ -137,7 +136,6 @@ async fn decrement(state: web::Data<Mutex<AppState>>, person: web::Path<String>)
         "name": &person_to_update.name,
         "tasks_completed": person_to_update.tasks_completed,
     }))
-
 }
 
 #[actix_web::main]
