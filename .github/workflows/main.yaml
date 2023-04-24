@@ -28,4 +28,4 @@ jobs:
 
       - name: Pull & Run new container
         run: |
-          ssh deploy "docker pull '${{ secrets.DOCKER_USERNAME }}'/task-tracker-rs &&  docker run -d -p 8080:8080 -v /home/jon/task-data:/app/data --network traefik_default --label traefik.enable=true --label traefik.http.routers.task-tracker-rs.entrypoints=web,websecure --label traefik.http.routers.task-tracker-rs.rule=Host\(\`tasks.nurminen.io\`\) --label traefik.http.routers.task-tracker-rs.tls=true --label traefik.http.routers.task-tracker-rs.tls.certresolver=production --restart always '${{ secrets.DOCKER_USERNAME }}'/task-tracker-rs"
+          ssh deploy 'docker pull "${{ secrets.DOCKER_USERNAME }}"/task-tracker-rs &&  docker run -d -p 8080:8080 -v /home/jon/task-data:/app/data --network traefik_default --label traefik.enable=true --label traefik.http.routers.task-tracker-rs.entrypoints=web,websecure --label traefik.http.routers.task-tracker-rs.rule=Host\(\`tasks.nurminen.io\`\) --label traefik.http.routers.task-tracker-rs.tls=true --label traefik.http.routers.task-tracker-rs.tls.certresolver=production --restart always "${{ secrets.DOCKER_USERNAME }}"/task-tracker-rs'
