@@ -16,7 +16,6 @@ jobs:
         docker image build -t '${{ secrets.DOCKER_USERNAME }}'/task-tracker-rs .
         docker tag '${{ secrets.DOCKER_USERNAME }}'/task-tracker-rs '${{ secrets.DOCKER_USERNAME }}'/task-tracker-rs
         docker push '${{ secrets.DOCKER_USERNAME }}'/task-tracker-rs
-       # docker image rm '${{ secrets.DOCKER_USERNAME }}'/task-tracker-rs
   
   deploy:
     needs: build
@@ -31,8 +30,8 @@ jobs:
 
       - name: Stop & Remove old container and image
         run: |
-          ssh -i ~/.ssh/private.key jon@nurminen.io 'CONTAINERID=$(docker ps -q --filter "publish=8080") && docker stop "$CONTAINERID" && docker rm "$CONTAINERID" && docker image rm jontismo/task-tracker-rs'
+          ssh -i ~/.ssh/private.key '${{ secrets.SSH_USERNAME }}'@nurminen.io 'CONTAINERID=$(docker ps -q --filter "publish=8080") && docker stop "$CONTAINERID" && docker rm "$CONTAINERID" && docker image rm jontismo/task-tracker-rs'
 
       - name: Pull & Run new container
         run: |
-          ssh -i ~/.ssh/private.key jon@nurminen.io 'docker pull "${{ secrets.DOCKER_USERNAME }}"/task-tracker-rs &&  docker run -d -p 127.0.0.1:8080:8080 -v /home/jon/task-data:/app/data --network traefik_default --restart always "${{ secrets.DOCKER_USERNAME }}"/task-tracker-rs'
+          ssh -i ~/.ssh/private.key '${{ secrets.SSH_USERNAME }}'@nurminen.io 'docker pull "${{ secrets.DOCKER_USERNAME }}"/task-tracker-rs &&  docker run -d -p 127.0.0.1:8080:8080 -v /home/jon/task-data:/app/data --network traefik_default --restart always "${{ secrets.DOCKER_USERNAME }}"/task-tracker-rs'
