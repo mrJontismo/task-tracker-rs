@@ -79,6 +79,13 @@ async fn index() -> impl Responder {
         .body(include_str!("../templates/index.html"))
 }
 
+#[get("/favicon.ico")]
+async fn favicon() -> impl Responder {
+    HttpResponse::Ok()
+        .content_type("image/x-icon")
+        .body(include_bytes!("../templates/favicon.ico").as_ref())
+}
+
 #[get("/tasks_completed")]
 async fn get_tasks_completed(state: web::Data<Mutex<AppState>>) -> impl Responder {
     let state = state.lock().unwrap();
@@ -159,6 +166,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(app_state.clone())
             .service(index)
             .service(get_tasks_completed)
+            .service(favicon)
             .service(increment)
             .service(decrement)
     })
