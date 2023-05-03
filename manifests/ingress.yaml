@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: task-tracker-rs
+  namespace: task-tracker-rs
+spec:
+  rules:
+  - host: "rastit-test.nurminen.io"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: task-tracker-rs
+            port:
+              number: 8080
+  tls:
+  - hosts:
+      - rastit-test.nurminen.io
+    secretName: task-tracker-rs-cert
